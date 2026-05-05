@@ -28,8 +28,6 @@ jobs:
           node-version: '16'
       - run: yarn install --frozen-lockfile
       - run: yarn build
-        env:
-          NODE_OPTIONS: --openssl-legacy-provider
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
