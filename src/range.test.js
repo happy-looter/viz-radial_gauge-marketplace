@@ -1,4 +1,4 @@
-import {resolveGoal} from './range';
+import {resolveGoal, resolveRangeMax} from './range';
 
 const meas1 = [{name: 'm1'}];
 const meas2 = [{name: 'm1'}, {name: 'm2'}];
@@ -34,5 +34,48 @@ describe('resolveGoal', () => {
     const data = [{m1: {value: 5}}, {m1: {value: 90}}];
     const config = {range_max_source: 'first', viz_trellis_by: 'row'};
     expect(resolveGoal(config, data, meas1, 'm1')).toBeNull();
+  });
+});
+
+describe('resolveRangeMax', () => {
+  test('returns goal when chunk.goal is positive', () => {
+    const chunk = {goal: 80, value: 50, target: null};
+    expect(resolveRangeMax(chunk, {range_max: null})).toBe(80);
+  });
+
+  test('goal wins over manual range_max', () => {
+    const chunk = {goal: 120, value: 50, target: null};
+    expect(resolveRangeMax(chunk, {range_max: 50})).toBe(120);
+  });
+
+  test('falls through to manual range_max when goal is null', () => {
+    const chunk = {goal: null, value: 50, target: null};
+    expect(resolveRangeMax(chunk, {range_max: 200})).toBe(200);
+  });
+
+  test('falls through to manual range_max when goal is zero', () => {
+    const chunk = {goal: 0, value: 50, target: null};
+    expect(resolveRangeMax(chunk, {range_max: 200})).toBe(200);
+  });
+
+  test('falls through to manual range_max when goal is negative', () => {
+    const chunk = {goal: -10, value: 50, target: null};
+    expect(resolveRangeMax(chunk, {range_max: 200})).toBe(200);
+  });
+
+  test('auto-computes from value when no goal and no range_max', () => {
+    const chunk = {goal: null, value: 37, target: null};
+    expect(resolveRangeMax(chunk, {range_max: null})).toBe(40);
+  });
+
+  test('auto-computes from max(value, target) when both present', () => {
+    const chunk = {goal: null, value: 37, target: 85};
+    expect(resolveRangeMax(chunk, {range_max: null})).toBe(90);
+  });
+
+  test('auto-compute rounds up to next decade', () => {
+    expect(resolveRangeMax({goal: null, value: 123, target: null}, {range_max: null})).toBe(200);
+    expect(resolveRangeMax({goal: null, value: 7, target: null}, {range_max: null})).toBe(7);
+    expect(resolveRangeMax({goal: null, value: 1234, target: null}, {range_max: null})).toBe(2000);
   });
 });

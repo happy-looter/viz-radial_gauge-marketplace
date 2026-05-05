@@ -11,3 +11,19 @@ export function resolveGoal(config, data, meas, mesID) {
   }
   return null;
 }
+
+export function resolveRangeMax(chunk, config) {
+  if (chunk.goal != null && chunk.goal > 0) {
+    return chunk.goal;
+  }
+  if (config.range_max) {
+    return config.range_max;
+  }
+  const num = Math.max(
+    Math.ceil(chunk.value),
+    chunk.target ? Math.ceil(chunk.target) : 0
+  );
+  const len = (num + '').length;
+  const fac = Math.pow(10, len - 1);
+  return Math.ceil(num / fac) * fac;
+}
