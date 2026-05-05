@@ -407,6 +407,19 @@ looker.plugins.visualizations.add({
       default: 0,
       display_size: 'half',
     },
+    range_max_source: {
+      type: 'string',
+      label: 'Range Max Source',
+      display: 'select',
+      section: 'Plot',
+      values: [
+        {'Manual / Auto': 'manual'},
+        {'First Measure (Row 2)': 'first'},
+        {'Second Measure': 'second'},
+      ],
+      default: 'manual',
+      order: 29,
+    },
     range_max: {
       type: 'number',
       label: 'Range Max Override',
