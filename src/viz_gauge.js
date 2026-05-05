@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import SSF from 'ssf';
 import {trimSpecialCharacters} from './string';
+import {resolveGoal, resolveRangeMax} from './range';
 
 const DEFAULT_MAX_RANGE = null;
 
@@ -147,6 +148,7 @@ function processPivot(data, queryResponse, config, viz, pivotKey) {
         ? tarLabel
         : config.target_label_override,
     target_dimension: tarDim,
+    goal: resolveGoal(config, data, meas, mesID),
   };
   return chunk;
 }
@@ -308,6 +310,7 @@ function processData(data, queryResponse, config, viz) {
         ? tarLabel
         : config.target_label_override,
     target_dimension: tarDim,
+    goal: resolveGoal(config, data, meas, mesID),
   };
   return chunk;
 }
