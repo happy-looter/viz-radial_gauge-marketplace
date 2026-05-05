@@ -781,18 +781,9 @@ looker.plugins.visualizations.add({
       chunk = processData(data, queryResponse, config, this);
     }
 
-    if (!config.range_max || config.range_max === DEFAULT_MAX_RANGE) {
-      let num = Math.max(
-        Math.ceil(chunk.value),
-        chunk.target ? Math.ceil(chunk.target) : 0
-      );
-      var len = (num + '').length;
-      var fac = Math.pow(10, len - 1);
-      let default_max = Math.ceil(num / fac) * fac;
-      config.range_max = default_max;
-    }
     var viz = this;
     if (config.viz_trellis_by === 'none') {
+      const effective_range_max = resolveRangeMax(chunk, config);
       viz.radialProps = {
         cleanup: `gauge`,
         trellis_by: config.viz_trellis_by,
@@ -805,13 +796,13 @@ looker.plugins.visualizations.add({
         cutout: config.cutout,
         color: config.fill_color,
         gauge_background: config.background_color,
-        range: [config.range_min, config.range_max],
-        value: chunk.value > config.range_max ? config.range_max : chunk.value,
+        range: [config.range_min, effective_range_max],
+        value: chunk.value > effective_range_max ? effective_range_max : chunk.value,
         // value: config.dev_value,
         // value_rendered: config.dev_value.toString(),
         value_rendered: chunk.value_rendered,
         target:
-          chunk.target > config.range_max ? config.range_max : chunk.target,
+          chunk.target > effective_range_max ? effective_range_max : chunk.target,
         value_label: chunk.value_label,
         target_label: chunk.target_label,
         value_dimension: chunk.value_dimension,
@@ -862,6 +853,7 @@ looker.plugins.visualizations.add({
                 config.trellis_cols * config.trellis_rows,
                 queryResponse.pivots.length
               );
+        const effective_range_max = resolveRangeMax(d, config);
         viz.radialProps = {
           cleanup: `subgauge${i}`,
           trellis_by: config.viz_trellis_by,
@@ -875,10 +867,10 @@ looker.plugins.visualizations.add({
           cutout: config.cutout,
           color: config.fill_color,
           gauge_background: config.background_color,
-          range: [config.range_min, config.range_max],
-          value: d.value > config.range_max ? config.range_max : d.value,
+          range: [config.range_min, effective_range_max],
+          value: d.value > effective_range_max ? effective_range_max : d.value,
           value_rendered: d.value_rendered,
-          target: d.target > config.range_max ? config.range_max : d.target,
+          target: d.target > effective_range_max ? effective_range_max : d.target,
           value_label: d.value_label,
           target_label: d.target_label,
           value_dimension: d.value_dimension,
